@@ -1,0 +1,52 @@
+{
+  "name": "fake-krypto",
+  "version": "1.0.0",
+  "main": "fake-krypto.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "serverless offline start --noTimeout",
+    "docker": "serverless offline start --host 0.0.0.0 --stage docker",
+    "start": "node fake-krypto.js",
+    "code-style": "xo",
+    "deploy": "serverless deploy"
+  },
+  "dependencies": {
+    "loggy-log": "^1.1.4",
+    "mongoose": "^5.7.0",
+    "post-json-to-kafka": "^1.0.0",
+    "ramda": "^0.26.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "serverless-offline": "^5.12.0",
+    "serverless-provider-handler": "^1.0.3"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-spies": "^1.0.0",
+    "dotenv": "^8.1.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
+    "rewire": "^4.0.1",
+    "serverless": "^1.52.0",
+    "serverless-kubeless": "^0.7.3",
+    "sinon": "^7.4.2",
+    "sinon-chai": "^3.3.0",
+    "xo": "^0.24.0"
+  },
+  "xo": {
+    "envs": [
+      "mocha"
+    ],
+    "space": 2,
+    "prettier": true
+  },
+  "exposed-functions": [
+    "fakeKrypto"
+  ],
+  "sls-env": {
+    "FAKE_KRYPTO_URL": {
+      "dev": "http://localhost:3000/fake-krypto",
+      "docker": "http://localhost:3000/fake-krypto"
+    }
+  }
+}
