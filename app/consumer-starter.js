@@ -222,42 +222,26 @@ const consumerSimple_ = (topic, fn) => {
     return true;
   });
 };
-
-const connectAndStartConsumer_ = (topic, fn) => {
-  if (['Kryptonopolis'].includes(topic)) {
-    consumerGroupStreamKryptonopolis_(topic, fn);
-  } else if (['ElasticSearch', 'Helheim'].includes(topic)) {
-    consumerGroupStream_(topic, fn);
-  } else {
-    consumerSimple_(topic, fn);
-  }
-  log('info', `consumer of ${topic} created`);
-};
-
-const startConsumer = (topic, fn) =>
-  R.pipe(
-    waitForTopics_,
-    R.then(() => connectAndStartConsumer_(topic, fn))
-  )(topic); */
+*/
 
 const getKafkaUrl_ = () => R.prop('kafka', config.get('urlService'));
 
 const topicConsumerGroupStream = [
-  // 'Kryptonopolis',
   'ElasticSearch',
   'SentenceEncoder',
-  'Helheim',
-  'Monitor'
+  'Helheim'
 ];
+
+const topicConsumerGroupStreamWithKey = ['Kryptonopolis', 'Monitor'];
 
 const getListOfTopics_ = () =>
   new Promise(resolve => {
     const admin = new Admin(new KafkaClient({kafkaHost: getKafkaUrl_()}));
     admin.listTopics((error, response) => {
-      /* Logger.log(
+      logger.log(
         'info',
         `response getListOfTopics_ : ${JSON.stringify(response)}`
-      ); */
+      );
       return R.ifElse(
         R.not,
         () => resolve(_formatResponseListTopic(response)),
@@ -299,7 +283,7 @@ const parseMissive_ = (message, fn) =>
     fn
   )(message);
 
-const consumerGroupKryptonopolis_ = (topic, fn) => {
+const consumerGroupStreamWithKey_ = (topic, fn) => {
   const options = {
     kafkaHost: getKafkaUrl_(),
     id: `consumer_${topic}`,
@@ -309,7 +293,7 @@ const consumerGroupKryptonopolis_ = (topic, fn) => {
     fetchMaxBytes: 15728640
   };
   const consumerGroup = new ConsumerGroupStream(options, topic);
-  logger.log('info', `consumer group Krypto of ${topic} created`);
+  logger.log('info', `consumer group stream with key of ${topic} created`);
   consumerGroup.on('data', async chunk => {
     logger.log(
       'info',
@@ -407,7 +391,10 @@ const connectAndStartConsumer_ = (topic, fn) =>
       topic => R.includes(topic, topicConsumerGroupStream),
       () => consumerGroupStream_(topic, fn)
     ],
-    [R.equals('Kryptonopolis'), () => consumerGroupKryptonopolis_(topic, fn)],
+    [
+      topic => R.includes(topic, topicConsumerGroupStreamWithKey),
+      () => consumerGroupStreamWithKey_(topic, fn)
+    ],
     [R.T, () => consumerSimple_(topic, fn)]
   ])(topic);
 
