@@ -1,14 +1,14 @@
-const R = require('ramda');
-const {log} = require('loggy-log');
+const {logger} = require('../app/utils/logger');
 
-const fakeSendToKryptonopolis = model => new Promise(resolve =>
+const fakeSendToKryptonopolis = model =>
+  new Promise(resolve =>
     setTimeout(() => {
-        console.log('dans send kryptonopolis');
-        resolve(model)
-    }, 5000))
-    .catch(error => {
-    log('error', `Unable to connect to kryptonopolis`);
-    log('debug', error);
-});
+      logger.log('info', 'dans send kryptonopolis');
+      resolve(model);
+    }, 6000)
+  ).catch(error => {
+    logger.log('error', `Unable to connect to kryptonopolis`);
+    logger.log('debug', error);
+  });
 
 module.exports = {fakeSendToKryptonopolis};
