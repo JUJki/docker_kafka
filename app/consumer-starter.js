@@ -7,7 +7,6 @@ const {
   Admin
 } = require('kafka-node');
 
-
 const R = require('ramda');
 const config = require('config');
 const {logger} = require('../app/utils/logger');
@@ -37,9 +36,12 @@ const getListOfTopics_ = () =>
   });
 const _formatResponseListTopic = R.pipe(R.last, R.prop('metadata'));
 
-const getPartitionFromListConfig_ = topicConfig => R.values(R.map(itemTopic => {
-  return R.prop('partition', itemTopic)
-}, topicConfig))
+const getPartitionFromListConfig_ = topicConfig =>
+  R.values(
+    R.map(itemTopic => {
+      return R.prop('partition', itemTopic);
+    }, topicConfig)
+  );
 
 const createConsumerIfTopicExist_ = (keyTopic, listTopic, topic) =>
   R.ifElse(
@@ -67,7 +69,8 @@ const parseMissive_ = (message, fn) =>
     ),
     fn
   )(message);
-const partitionConfig_ = (topic, partitions) => R.map(partition => ({topic, partition}), partitions);
+const partitionConfig_ = (topic, partitions) =>
+  R.map(partition => ({topic, partition}), partitions);
 const consumerGroupStream_ = (topic, fn) => {
   const options = {
     kafkaHost: getKafkaUrl_(),
@@ -79,21 +82,21 @@ const consumerGroupStream_ = (topic, fn) => {
   };
   const consumerGroupStream = new ConsumerGroupStream(options, topic);
   consumerGroupStream.on('connect', () => {
-      logger.log('info', `consumerGroupStream of ${topic} created and connected`);
-    }
-  );
+    logger.log('info', `consumerGroupStream of ${topic} created and connected`);
+  });
   consumerGroupStream.on('pause', () => {
-      logger.log('info', `consumerGroupStream of ${topic} pause`);
-    }
-  );
+    logger.log('info', `consumerGroupStream of ${topic} pause`);
+  });
   consumerGroupStream.on('resume', () => {
-      logger.log('info', `consumerGroupStream of ${topic} resume`);
-    }
-  );
+    logger.log('info', `consumerGroupStream of ${topic} resume`);
+  });
   consumerGroupStream.on('data', async chunk => {
     logger.log(
       'info',
-      `consumerGroupStream data topic ${R.prop('topic', chunk)} ${JSON.stringify({
+      `consumerGroupStream data topic ${R.prop(
+        'topic',
+        chunk
+      )} ${JSON.stringify({
         offset: R.prop('offset', chunk),
         highWaterOffset: R.prop('highWaterOffset', chunk),
         partition: R.prop('partition', chunk)
@@ -112,6 +115,7 @@ const consumerGroupStream_ = (topic, fn) => {
     )
   );
 };
+
 const consumerGroupStreamWithKey_ = (topic, fn) => {
   const options = {
     kafkaHost: getKafkaUrl_(),
@@ -123,21 +127,24 @@ const consumerGroupStreamWithKey_ = (topic, fn) => {
   };
   const consumerGroupStream = new ConsumerGroupStream(options, topic);
   consumerGroupStream.on('connect', () => {
-      logger.log('info', `consumerGroupStream with key of ${topic} created and connected`);
-    }
-  );
+    logger.log(
+      'info',
+      `consumerGroupStream with key of ${topic} created and connected`
+    );
+  });
   consumerGroupStream.on('pause', () => {
-      logger.log('info', `consumerGroupStream with key of ${topic} pause`);
-    }
-  );
+    logger.log('info', `consumerGroupStream with key of ${topic} pause`);
+  });
   consumerGroupStream.on('resume', () => {
-      logger.log('info', `consumerGroupStream with key of ${topic} resume`);
-    }
-  );
+    logger.log('info', `consumerGroupStream with key of ${topic} resume`);
+  });
   consumerGroupStream.on('data', async chunk => {
     logger.log(
       'info',
-      `consumerGroupStream with key data topic ${R.prop('topic', chunk)} ${JSON.stringify({
+      `consumerGroupStream with key data topic ${R.prop(
+        'topic',
+        chunk
+      )} ${JSON.stringify({
         offset: R.prop('offset', chunk),
         highWaterOffset: R.prop('highWaterOffset', chunk),
         partition: R.prop('partition', chunk),
@@ -157,6 +164,7 @@ const consumerGroupStreamWithKey_ = (topic, fn) => {
     )
   );
 };
+
 const consumerGroup_ = (topic, fn) => {
   const options = {
     kafkaHost: getKafkaUrl_(),
@@ -184,33 +192,39 @@ const consumerGroup_ = (topic, fn) => {
   consumerGroup.on('error', error =>
     logger.log(
       'error',
-      `error on consumerGroup when consume ${topic} : ${JSON.stringify(
-        error
-      )}`
+      `error on consumerGroup when consume ${topic} : ${JSON.stringify(error)}`
     )
   );
 };
+
 const consumerStreamWithKey_ = (topic, partitions, fn) => {
   const options = {
     groupId: `kafka-node-${topic}`,
     fetchMaxBytes: 15728640,
     fromOffset: 'earliest',
-    autoCommit: true,
+    autoCommit: true
   };
 
   const client = new KafkaClient({kafkaHost: getKafkaUrl_()});
-  const consumerStream = new ConsumerStream(client, partitionConfig_(topic, partitions), options);
+  const consumerStream = new ConsumerStream(
+    client,
+    partitionConfig_(topic, partitions),
+    options
+  );
   logger.log('info', `consumerStream with key of ${topic} created`);
   consumerStream.connect();
   consumerStream.init();
   consumerStream.on('data', async message => {
     logger.log(
       'info',
-      `consumerStream with key data topic ${R.prop('topic', message)} ${JSON.stringify({
+      `consumerStream with key data topic ${R.prop(
+        'topic',
+        message
+      )} ${JSON.stringify({
         offset: R.prop('offset', message),
         highWaterOffset: R.prop('highWaterOffset', message),
         partition: R.prop('partition', message),
-        key: R.prop('key', message),
+        key: R.prop('key', message)
       })}`
     );
     consumerStream.pause();
@@ -226,6 +240,7 @@ const consumerStreamWithKey_ = (topic, partitions, fn) => {
     )
   );
 };
+
 const consumerSimpleWithKey_ = (topic, partitions, fn) => {
   const consumer = new Consumer(
     new KafkaClient({kafkaHost: getKafkaUrl_()}),
@@ -242,7 +257,10 @@ const consumerSimpleWithKey_ = (topic, partitions, fn) => {
   consumer.on('message', async message => {
     logger.log(
       'info',
-      `Consumer with key data topic ${R.prop('topic', message)} ${JSON.stringify({
+      `Consumer with key data topic ${R.prop(
+        'topic',
+        message
+      )} ${JSON.stringify({
         offset: R.prop('offset', message),
         highWaterOffset: R.prop('highWaterOffset', message),
         partition: R.prop('partition', message),
@@ -262,6 +280,7 @@ const consumerSimpleWithKey_ = (topic, partitions, fn) => {
     )
   );
 };
+
 const consumerSimple_ = (topic, partitions, fn) => {
   const consumer = new Consumer(
     new KafkaClient({kafkaHost: getKafkaUrl_()}),
@@ -289,9 +308,7 @@ const consumerSimple_ = (topic, partitions, fn) => {
   consumer.on('error', error =>
     logger.log(
       'error',
-      `error on Consumer when consume ${topic} : ${JSON.stringify(
-        error
-      )}`
+      `error on Consumer when consume ${topic} : ${JSON.stringify(error)}`
     )
   );
 };
@@ -322,21 +339,53 @@ const connectAndStartConsumer_ = (topic, consumer, fn, partition) =>
       consumer => R.equals('consumer', consumer),
       () => consumerSimple_(topic, partition, fn)
     ],
-    [R.T, () => logger.log('error', `Consumer type config "${consumer}" was not defined`)]
+    [
+      R.T,
+      () =>
+        logger.log(
+          'error',
+          `Consumer type config "${consumer}" was not defined`
+        )
+    ]
   ])(consumer);
+
+const formatObjectTopicForCreate_ = topic =>
+  R.pipe(
+    () => R.objOf('topic', R.prop('topic', topic)),
+    R.assoc('partitions', R.path(['config', 'partitions'], topic) || 1),
+    R.assoc('replicationFactor', R.path(['config', 'replication'], topic) || 1),
+    R.assoc('configEntries', R.path(['config', 'entries'], topic) || [])
+  )();
 
 const startConsumer = data => {
   const kafkaClient_ = new KafkaClient({kafkaHost: getKafkaUrl_()});
-  kafkaClient_.on('ready', async () => {
+  kafkaClient_.on('ready', () => {
     logger.log('info', 'client kafka ready');
-    const listTopic = await getListOfTopics_();
-    const keyTopic = R.keys(listTopic);
-    if (R.length(keyTopic) === 0) {
-      logger.log('error', 'no topic has been created');
-      return;
-    }
+    const allTopicsToCreate = R.map(
+      item => formatObjectTopicForCreate_(item),
+      data
+    );
+    kafkaClient_.createTopics(allTopicsToCreate, async error => {
+      if (error) {
+        logger.log(
+          'error',
+          `error when create topics ${JSON.stringify(error)}`
+        );
+        return;
+      }
 
-    R.map(item => createConsumerIfTopicExist_(keyTopic, listTopic, item), data);
+      const listTopic = await getListOfTopics_();
+      const keyTopic = R.keys(listTopic);
+      if (R.length(keyTopic) === 0) {
+        logger.log('error', 'no topic has been created');
+        return;
+      }
+
+      R.map(
+        item => createConsumerIfTopicExist_(keyTopic, listTopic, item),
+        data
+      );
+    });
   });
   kafkaClient_.on('error', err => {
     logger.log('error', `client kafka error: ${JSON.stringify(err)}`);
