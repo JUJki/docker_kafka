@@ -14,15 +14,6 @@ const {logger} = require('../app/utils/logger');
 
 const getKafkaUrl_ = () => R.prop('kafka', config.get('urlService'));
 
-const topicConsumerGroupStream = [
-  'ElasticSearch',
-  'SentenceEncoder',
-  'Helheim'
-];
-const topicConsumerGroupStreamWithKey = ['Monitor'];
-const topicConsumerStreamWithKey = [];
-const topicConsumerSimpleWithKey = ['Kryptonopolis'];
-
 const getListOfTopics_ = () =>
   new Promise(resolve => {
     const admin = new Admin(new KafkaClient({kafkaHost: getKafkaUrl_()}));
@@ -56,8 +47,9 @@ const createConsumerIfTopicExist_ = (keyTopic, listTopic, topic) =>
     () =>
       connectAndStartConsumer_(
         R.prop('topic', topic),
-        _getPartitionFromListConfig(R.prop(R.prop('topic', topic), listTopic)),
-        R.prop('function', topic)
+        R.prop('consumerType', topic),
+        R.prop('function', topic),
+        _getPartitionFromListConfig(R.prop(R.prop('topic', topic), listTopic))
       ),
     R.always(false)
   )(listTopic);
@@ -75,7 +67,7 @@ const parseMissive_ = (message, fn) =>
     ),
     fn
   )(message);
-
+const partitionConfig_ = (topic, partitions) => R.map(partition => ({topic, partition}), partitions);
 const consumerGroupStream_ = (topic, fn) => {
   const options = {
     kafkaHost: getKafkaUrl_(),
@@ -114,7 +106,7 @@ const consumerGroupStream_ = (topic, fn) => {
   consumerGroupStream.on('error', error =>
     logger.log(
       'error',
-      `error on consumerGroupStream when kraken consume ${topic} : ${JSON.stringify(
+      `error on consumerGroupStream when consume ${topic} : ${JSON.stringify(
         error
       )}`
     )
@@ -131,21 +123,21 @@ const consumerGroupStreamWithKey_ = (topic, fn) => {
   };
   const consumerGroupStream = new ConsumerGroupStream(options, topic);
   consumerGroupStream.on('connect', () => {
-      logger.log('info', `consumer group stream of ${topic} created and connected`);
+      logger.log('info', `consumer group stream with key of ${topic} created and connected`);
     }
   );
   consumerGroupStream.on('pause', () => {
-      logger.log('info', `consumer group stream of ${topic} pause`);
+      logger.log('info', `consumer group stream with key of ${topic} pause`);
     }
   );
   consumerGroupStream.on('resume', () => {
-      logger.log('info', `consumer group stream of ${topic} resume`);
+      logger.log('info', `consumer group stream with key of ${topic} resume`);
     }
   );
   consumerGroupStream.on('data', async chunk => {
     logger.log(
       'info',
-      `Consumer data topic ${R.prop('topic', chunk)} ${JSON.stringify({
+      `Consumer group stream with key data topic ${R.prop('topic', chunk)} ${JSON.stringify({
         offset: R.prop('offset', chunk),
         highWaterOffset: R.prop('highWaterOffset', chunk),
         partition: R.prop('partition', chunk),
@@ -159,13 +151,12 @@ const consumerGroupStreamWithKey_ = (topic, fn) => {
   consumerGroupStream.on('error', error =>
     logger.log(
       'error',
-      `error on consumerGroupStream when consume ${topic} : ${JSON.stringify(
+      `error on consumerGroupStream with key when consume ${topic} : ${JSON.stringify(
         error
       )}`
     )
   );
 };
-const partitionConfig_ = (topic, partitions) => R.map(partition => ({topic, partition}), partitions);
 const consumerStreamWithKey_ = (topic, partitions, fn) => {
   const options = {
     groupId: `kafka-node-${topic}`,
@@ -181,7 +172,7 @@ const consumerStreamWithKey_ = (topic, partitions, fn) => {
   consumerStream.on('data', async message => {
     logger.log(
       'info',
-      `Consumer data topic ${R.prop('topic', message)} ${JSON.stringify({
+      `Consumer stream with key data topic ${R.prop('topic', message)} ${JSON.stringify({
         offset: R.prop('offset', message),
         highWaterOffset: R.prop('highWaterOffset', message),
         partition: R.prop('partition', message),
@@ -195,7 +186,7 @@ const consumerStreamWithKey_ = (topic, partitions, fn) => {
   consumerStream.on('error', error =>
     logger.log(
       'error',
-      `error on consumerStream when consume ${topic} : ${JSON.stringify(
+      `error on consumerStream with key when consume ${topic} : ${JSON.stringify(
         error
       )}`
     )
@@ -213,11 +204,11 @@ const consumerSimpleWithKey_ = (topic, partitions, fn) => {
   );
   consumer.connect();
   consumer.init();
-  logger.log('info', `consumer simple of ${topic} created and connected`);
+  logger.log('info', `consumer simple with key of ${topic} created and connected`);
   consumer.on('message', async message => {
     logger.log(
       'info',
-      `Consumer data topic ${R.prop('topic', message)} ${JSON.stringify({
+      `Consumer with key data topic ${R.prop('topic', message)} ${JSON.stringify({
         offset: R.prop('offset', message),
         highWaterOffset: R.prop('highWaterOffset', message),
         partition: R.prop('partition', message),
@@ -231,7 +222,7 @@ const consumerSimpleWithKey_ = (topic, partitions, fn) => {
   consumer.on('error', error =>
     logger.log(
       'error',
-      `error on consumerSimple when kraken consume ${topic} : ${JSON.stringify(
+      `error on consumerSimple with key when consume ${topic} : ${JSON.stringify(
         error
       )}`
     )
@@ -264,33 +255,37 @@ const consumerSimple_ = (topic, partitions, fn) => {
   consumer.on('error', error =>
     logger.log(
       'error',
-      `error on consumerSimple when kraken consume ${topic} : ${JSON.stringify(
+      `error on consumerSimple when consume ${topic} : ${JSON.stringify(
         error
       )}`
     )
   );
 };
 
-const connectAndStartConsumer_ = (topic, partition, fn) =>
+const connectAndStartConsumer_ = (topic, consumer, fn, partition) =>
   R.cond([
     [
-      topic => R.includes(topic, topicConsumerGroupStream),
+      consumer => R.equals('consumerGroupStream', consumer),
       () => consumerGroupStream_(topic, fn)
     ],
     [
-      topic => R.includes(topic, topicConsumerGroupStreamWithKey),
+      consumer => R.equals('consumerGroupStreamWithKey', consumer),
       () => consumerGroupStreamWithKey_(topic, fn)
     ],
     [
-      topic => R.includes(topic, topicConsumerStreamWithKey),
+      consumer => R.equals('consumerStreamWithKey', consumer),
       () => consumerStreamWithKey_(topic, partition, fn)
     ],
     [
-      topic => R.includes(topic, topicConsumerSimpleWithKey),
+      consumer => R.equals('consumerWithKey', consumer),
       () => consumerSimpleWithKey_(topic, partition, fn)
     ],
-    [R.T, () => consumerSimple_(topic, partition, fn)]
-  ])(topic);
+    [
+      consumer => R.equals('consumer', consumer),
+      () => consumerSimple_(topic, partition, fn)
+    ],
+    [R.T, () => logger.log('error', `Consumer type config "${consumer}" was not defined`)]
+  ])(consumer);
 
 const startConsumer = data => {
   const kafkaClient_ = new KafkaClient({kafkaHost: getKafkaUrl_()});
@@ -307,6 +302,24 @@ const startConsumer = data => {
   });
   kafkaClient_.on('error', err => {
     logger.log('error', `client kafka error: ${JSON.stringify(err)}`);
+  });
+  kafkaClient_.on('socket_error', err => {
+    logger.log('error', `client kafka socket_error: ${JSON.stringify(err)}`);
+  });
+  kafkaClient_.on('brokersChanged', () => {
+    logger.log('info', `client kafka brokersChanged`);
+  });
+  kafkaClient_.on('close', err => {
+    logger.log('info', `client kafka close`);
+  });
+  kafkaClient_.on('connect', err => {
+    logger.log('info', `client kafka connect`);
+  });
+  kafkaClient_.on('reconnect', err => {
+    logger.log('info', `client kafka reconnect`);
+  });
+  kafkaClient_.on('zkReconnect', err => {
+    logger.log('info', `client kafka zkReconnect`);
   });
 };
 
