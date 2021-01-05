@@ -5,7 +5,7 @@ const fakeSendToKryptonopolis = model =>
     setTimeout(() => {
       logger.log('info', 'dans send kryptonopolis');
       resolve(model);
-    }, 6000)
+    }, 30000)
   ).catch(error => {
     logger.log('error', `Unable to connect to kryptonopolis`);
     logger.log('debug', error);
