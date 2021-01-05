@@ -37,7 +37,7 @@ const getListOfTopics_ = () =>
   });
 const _formatResponseListTopic = R.pipe(R.last, R.prop('metadata'));
 
-const _getPartitionFromListConfig = topicConfig => R.values(R.map(itemTopic => {
+const getPartitionFromListConfig_ = topicConfig => R.values(R.map(itemTopic => {
   return R.prop('partition', itemTopic)
 }, topicConfig))
 
@@ -49,7 +49,7 @@ const createConsumerIfTopicExist_ = (keyTopic, listTopic, topic) =>
         R.prop('topic', topic),
         R.prop('consumerType', topic),
         R.prop('function', topic),
-        _getPartitionFromListConfig(R.prop(R.prop('topic', topic), listTopic))
+        getPartitionFromListConfig_(R.prop(R.prop('topic', topic), listTopic))
       ),
     R.always(false)
   )(listTopic);
@@ -347,16 +347,16 @@ const startConsumer = data => {
   kafkaClient_.on('brokersChanged', () => {
     logger.log('info', `client kafka brokersChanged`);
   });
-  kafkaClient_.on('close', err => {
+  kafkaClient_.on('close', () => {
     logger.log('info', `client kafka close`);
   });
-  kafkaClient_.on('connect', err => {
+  kafkaClient_.on('connect', () => {
     logger.log('info', `client kafka connect`);
   });
-  kafkaClient_.on('reconnect', err => {
+  kafkaClient_.on('reconnect', () => {
     logger.log('info', `client kafka reconnect`);
   });
-  kafkaClient_.on('zkReconnect', err => {
+  kafkaClient_.on('zkReconnect', () => {
     logger.log('info', `client kafka zkReconnect`);
   });
 };
