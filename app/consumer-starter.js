@@ -325,7 +325,7 @@ const connectAndStartConsumer_ = (topic, consumer, fn, partition) =>
     ],
     [
       consumer => R.equals('consumerGroup', consumer),
-      () => consumerGroup_(topic, partition, fn)
+      () => consumerGroup_(topic, fn)
     ],
     [
       consumer => R.equals('consumerStreamWithKey', consumer),
@@ -359,7 +359,7 @@ const formatObjectTopicForCreate_ = topic =>
 
 const startConsumer = data => {
   const kafkaClient_ = new KafkaClient({kafkaHost: getKafkaUrl_()});
-  kafkaClient_.on('ready', () => {
+  kafkaClient_.on('ready',  () => {
     logger.log('info', 'client kafka ready');
     const allTopicsToCreate = R.map(
       item => formatObjectTopicForCreate_(item),
@@ -373,14 +373,13 @@ const startConsumer = data => {
         );
         return;
       }
-
+      logger.log('info', 'client kafka all topics created');
       const listTopic = await getListOfTopics_();
       const keyTopic = R.keys(listTopic);
       if (R.length(keyTopic) === 0) {
         logger.log('error', 'no topic has been created');
         return;
       }
-
       R.map(
         item => createConsumerIfTopicExist_(keyTopic, listTopic, item),
         data

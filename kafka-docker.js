@@ -5,33 +5,10 @@ const {startConsumer} = require('./app/consumer-starter');
 
 const AllConsumer = [
   {
-    topic: 'KryptonopolisTestWithConfig',
-    consumerType: 'consumerWithKey',
-    config: {
-      partitions: 3,
-      replication: 1,
-      entries: [
-        {
-          name: 'cleanup.policy',
-          value: 'compact'
-        },
-        {
-          name: 'min.cleanable.dirty.ratio',
-          value: '0.5'
-        },
-        {
-          name: 'segment.ms',
-          value: '10000'
-        }
-      ]
-    },
-    function: processKryptonopolis
-  },
-  {
     topic: 'Kryptonopolis',
-    consumerType: 'consumerWithKey',
+    consumerType: 'consumerGroup',
     config: {
-      partitions: 3,
+      partitions: 2,
       replication: 1,
       entries: [
         {
@@ -40,7 +17,7 @@ const AllConsumer = [
         },
         {
           name: 'min.cleanable.dirty.ratio',
-          value: '0.5'
+          value: '0.01'
         },
         {
           name: 'segment.ms',
