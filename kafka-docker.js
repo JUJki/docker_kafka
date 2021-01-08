@@ -6,7 +6,7 @@ const {startConsumer} = require('./app/consumer-starter');
 const AllConsumer = [
   {
     topic: 'Kryptonopolis',
-    consumerType: 'consumerGroup',
+    consumerType: 'consumerGroupCompact',
     config: {
       partitions: 2,
       replication: 1,
