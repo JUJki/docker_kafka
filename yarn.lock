@@ -421,6 +421,13 @@ async@^2.5.0, async@^2.6.1:
   dependencies:
     lodash "^4.17.14"
 
+async@^2.6.2:
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.6.4.tgz#706b7ff6084664cd7eae713f6f965433b5504221"
+  integrity sha512-mzo5dfJYwAn29PeiJ0zvwTo04zj8HDJj0Mn8TD7sno7q12prdbnasKJHhkm2c1LgrhlJ0teaea8860oxi51mGA==
+  dependencies:
+    lodash "^4.17.14"
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -498,7 +505,7 @@ bl@^1.0.0, bl@^1.2.0:
     readable-stream "^2.3.5"
     safe-buffer "^5.1.1"
 
-bl@^2.2.1:
+bl@^2.2.0, bl@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/bl/-/bl-2.2.1.tgz#8c11a7b730655c5d56898cdc871224f40fd901d5"
   integrity sha512-6Pesp1w0DEX1N550i/uGV/TqucVL4AM/pgThFSN/Qq9si1/DF9aIHs1BxD8V/QU0HoeHO6cQRTAuYnLPKq1e4g==
@@ -2822,6 +2829,27 @@ kafka-node@4.0.2:
   optionalDependencies:
     snappy "^6.0.1"
 
+kafka-node@4.1.3:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/kafka-node/-/kafka-node-4.1.3.tgz#9e5fdf3a5562370ff0f82c5481bd14a6e39ad93d"
+  integrity sha512-C2WHksRCr7vIKmbxYaCk2c5Q1lnHIi6C0f3AioK3ARcRHGO9DpqErcoaS9d8PP62yzTnkYras+iAlmPsZHNSfw==
+  dependencies:
+    async "^2.6.2"
+    binary "~0.3.0"
+    bl "^2.2.0"
+    buffer-crc32 "~0.2.5"
+    buffermaker "~1.2.0"
+    debug "^2.1.3"
+    denque "^1.3.0"
+    lodash "^4.17.4"
+    minimatch "^3.0.2"
+    nested-error-stacks "^2.0.0"
+    optional "^0.1.3"
+    retry "^0.10.1"
+    uuid "^3.0.0"
+  optionalDependencies:
+    snappy "^6.0.1"
+
 kareem@2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/kareem/-/kareem-2.3.2.tgz#78c4508894985b8d38a0dc15e1a8e11078f2ca93"
@@ -3886,9 +3914,9 @@ punycode@^2.1.0, punycode@^2.1.1:
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
 qs@~6.5.2:
-  version "6.5.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
-  integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
+  version "6.5.3"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.3.tgz#3aeeffc91967ef6e35c0e488ef46fb296ab76aad"
+  integrity sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==
 
 quick-lru@^1.0.0:
   version "1.1.0"
